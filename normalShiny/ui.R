@@ -25,7 +25,6 @@ shinyUI(fluidPage(
     
     # Show a plot of the generated distribution
     mainPanel(
-      h4("hello"),
       rankUI("TMAX")
     )
   )
