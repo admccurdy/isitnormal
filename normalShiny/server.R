@@ -14,4 +14,5 @@ shinyServer(function(input, output) {
   source("R/shinyReactives.R", local = T)
   source("R/shinyUI_support.R", local = T)
   callModule(elementRank, "TMAX", weatherData, "TMAX", dateInterest)
+  callModule(elementRank, "TMIN", weatherData, "TMIN", dateInterest)
 })

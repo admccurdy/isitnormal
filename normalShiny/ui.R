@@ -25,7 +25,8 @@ shinyUI(fluidPage(
     
     # Show a plot of the generated distribution
     mainPanel(
-      rankUI("TMAX")
+      rankUI("TMAX"),
+      rankUI("TMIN")
     )
   )
 ))

@@ -3,6 +3,6 @@ ranker <- function(value, set){
 }
 
 percenter <- function(value, set){
-  round((sum(set <= value) / 
+  round((sum(set <= value, na.rm = T) / 
            length(set)) * 100)
 }

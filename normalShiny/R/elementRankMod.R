@@ -1,6 +1,9 @@
 rankUI <- function(id){
   ns <- NS(id)
-  uiOutput(ns("info"))
+  tagList(
+    uiOutput(ns("info")),
+    plotOutput(ns("monthGraph"))
+  )
 }
 
 
@@ -31,12 +34,14 @@ elementRank <- function(input, output, session, weatherData, myElement, myDate){
     return(myReturn)
   })
   
-  monthGraph <- renderPlot({
+  output$monthGraph <- renderPlot({
     myData <- filteredWeather()[month == month(myDate()),]
     percentiles <- sapply(split(myData, myData$day), FUN = function(x){
       myValue <- x[year == year(myDate()), value]
-      percenter(myValue, x)
+      percenter(myValue, x$value)
     })
+    percentiles <- data.table("quantile" = percentiles, "day" = seq_along(percentiles))
+    ggplot(percentiles, aes(quantile)) + geom_density() + ylim(0, 100)
   })
   
   output$info <- renderUI({
