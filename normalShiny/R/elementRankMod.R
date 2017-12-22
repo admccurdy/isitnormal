@@ -19,19 +19,24 @@ elementRank <- function(input, output, session, weatherData, myElement, myDate){
   })
   
   dayRank <- reactive({
-    print(myDate())
-    print(class(myDate()))
     myData <- filteredWeather()[month == month(myDate()) &
-                               day == mday(myDate())
-                               ,][order(value, decreasing = T), value]
+                                  day == mday(myDate())
+                                ,][order(value, decreasing = T), value]
     myValue <- filteredWeather()[date == myDate(), value]
     myReturn <- vector("list", 3)
     names(myReturn) <- c("rank", "percentile", "years")
-    myReturn$rank <- max(which(myData == myValue, arr.ind = T))
-    myReturn$percentile <- round((sum(myData <= myValue) / 
-                            length(myData)) * 100)
+    myReturn$rank <- ranker(myValue, myData)
+    myReturn$percentile <- percenter(myValue, myData)
     myReturn$years <- length(myData)
     return(myReturn)
+  })
+  
+  monthGraph <- renderPlot({
+    myData <- filteredWeather()[month == month(myDate()),]
+    percentiles <- sapply(split(myData, myData$day), FUN = function(x){
+      myValue <- x[year == year(myDate()), value]
+      percenter(myValue, x)
+    })
   })
   
   output$info <- renderUI({
