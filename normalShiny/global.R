@@ -2,6 +2,7 @@ library(data.table)
 library(ggplot2)
 library(dplyr)
 library(ks)
+library(lubridate)
 
 source("R/elementRankMod.R")
 source("R/shinyFunctions.R")

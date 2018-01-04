@@ -25,8 +25,16 @@ shinyUI(fluidPage(
     
     # Show a plot of the generated distribution
     mainPanel(
-      rankUI("TMAX"),
-      rankUI("TMIN")
+      tabsetPanel(id = "elementPanes",
+        tabPanel("Max Temp",
+          rankUI("TMAX")    
+        ),
+        tabPanel("Min Temp",
+          rankUI("TMIN")    
+        )
+      
+      
+      )
     )
   )
 ))
