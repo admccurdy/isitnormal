@@ -2,7 +2,9 @@ rankUI <- function(id){
   ns <- NS(id)
   tagList(
     uiOutput(ns("info")),
+    h4("Distribution of temperatures on this day"),
     plotOutput(ns("monthGraph")),
+    h4("Daily Ranking for Month"),
     plotOutput(ns("heatMonth"))
   )
 }
@@ -98,7 +100,6 @@ elementRank <- function(input, output, session, weatherData, myElement, interest
   
   output$heatMonth <- renderPlot({
     myData <- percentiles()
-    print(myData)
     myData[, weekDay := factor(weekdays(date), 
                                levels = c("Sunday", "Monday", "Tuesday", "Wednesday", 
                                           "Thursday", "Friday", "Saturday"))]
@@ -109,7 +110,7 @@ elementRank <- function(input, output, session, weatherData, myElement, interest
       geom_tile(color = "white") + 
       scale_fill_gradient2(low = "blue", mid = "white", 
                            high = "red", midpoint = 50, limits = c(0,100)) +
-      scale_y_reverse()
+      scale_y_reverse() + ggtitle(month.name[month(myDate())])
     
   })
   
