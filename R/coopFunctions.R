@@ -92,7 +92,7 @@ loadDLY <- function(IDs, myDir = NULL){
 }
 
 stationMedian <- function(stationData){
-  medianData <- stationData[element %in% c("PRCP", "SNWD", "WESD"), .("median" = median(value, na.rm = T)), by = c("element", "day", "month")]
+  medianData <- stationData[element %in% c("PRCP", "SNWD", "WESD") & year %in% c(1980:2010), .("median" = median(value, na.rm = T)), by = c("element", "day", "month")]
   medianData <- rbind(medianData, stationData[element %in% c("TAVG", "TMIN", "TOBS", "TMAX"), .("median" = mean(value, na.rm = T)), by = c("element", "day", "month")])
   stationData <- merge(stationData, medianData, by = c("element", "month", "day"))
   # setnames(stationData, c("value.x", "value.y"), c("value", "median"))
@@ -131,7 +131,7 @@ stationPlotter <- function(stationData, elements, scale = F, startDate = "all", 
     stationData[, value := value/median]
     stationData[is.infinite(value), value := 0]
   }
-  
+  if(title == "" & "name" %in% names(stationData))title <- stationData[1, name]
   if(is.null(ylims)){
     ylims <- c(min(stationData$value), max(stationData$value))
   }
@@ -166,7 +166,40 @@ stationPlotter <- function(stationData, elements, scale = F, startDate = "all", 
   }
 }
 
+yearToWY <- function(meltedValues){
+  meltedValues[,calYear := year]
+  meltedValues[, year := ifelse(month < 10, year, year + 1)]
+  return(meltedValues)
+}
+
+loadSnotel <- function(stations){
+  stationData <- loadDLY(stations$id)
+  stationData <- lapply(stationData, returnMeltedValues)
+  stationData <- lapply(stationData, precipCumSum)
+  stationData <- lapply(stationData, stationMedian)
+  stationData <- lapply(stationData, function(x)x[, por := value/median])
+  lapply(stationData, function(x)x[, date := as.Date(paste0(year, "/", month, "/", day))])
+  # lapply(stationData, function(x)merge(x, stations[, c("id", "latitude", "longitude", "elevation", "name", "first_year")], by = "id"))
+  return(stationData)
+}
+
 tempToF <- function(stationData){
   stationData[, value := as.numeric(value)]
   stationData[element %in% c("TMAX", "TAVG", "TMIN"), value := (value/10 * 9/5) + 32]
+}
+
+fnx = function(x) {
+  unlist(strsplit(as.character(x), '[19|20][0-9]{2}-', fixed=FALSE))[2]
+}
+
+waterYOD <- function(x){
+  if(month(x) < 10){
+    startDay <- yday(as.Date(paste0(2000 - 1, "-", "10-1")))
+    endDay <- yday(as.Date(paste0(2002 - 1, "-", "12-31")))
+    myReturn <- yday(x) + (endDay - startDay) + 1
+  }else{
+    startDay <- yday(as.Date(paste0(year(x), "-", "10-1")))
+    myReturn <- yday(x) - startDay + 1
+  }
+  return(myReturn)
 }
